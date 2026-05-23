@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: ml-backend
+    ports:
+      - "5000:5000"
+    restart: always
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_CALLBACK_URL=${GITHUB_CALLBACK_URL}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+    networks:
+      - ml-network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ml-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - ml-network
+
+networks:
+  ml-network:
+    driver: bridge
