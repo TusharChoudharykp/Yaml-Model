@@ -1,8 +1,5 @@
 import dotenv from "dotenv";
-
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
-}
+dotenv.config();
 
 import express from "express";
 
@@ -52,7 +49,7 @@ app.use("/auth", authRoute);
 
 app.listen(5000, () => {
 
-  console.log(
-    "Server running on port 5000"
-  );
+  console.log("Server running on port 5000");
+  console.log("CALLBACK:", process.env.GITHUB_CALLBACK_URL); // verify
+  console.log("FRONTEND:", process.env.FRONTEND_URL); // verify
 });
