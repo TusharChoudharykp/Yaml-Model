@@ -17,6 +17,8 @@ import authRoute from "./routes/auth-routes";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -29,13 +31,15 @@ app.use(express.json());
 
 app.use(
   session({
-    secret:
-      process.env.SESSION_SECRET ||
-      "secret",
-
+    secret: process.env.SESSION_SECRET || "secret",
     resave: false,
-
     saveUninitialized: false,
+    cookie: {
+      secure: true,        // required for https
+      sameSite: "none",    // required for cross-domain
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000  // 24 hours
+    }
   })
 );
 
