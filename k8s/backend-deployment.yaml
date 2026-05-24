@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-backend
+  template:
+    metadata:
+      labels:
+        app: ml-backend
+    spec:
+      dnsConfig:
+        nameservers:
+          - 8.8.8.8
+          - 8.8.4.4
+      containers:
+        - name: ml-backend
+          image: tusharchoudhary2002/ml-platform-backend:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: ml-platform-secret
+                  key: GITHUB_CLIENT_ID
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ml-platform-secret
+                  key: GITHUB_CLIENT_SECRET
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ml-platform-secret
+                  key: SESSION_SECRET
+            - name: GITHUB_CALLBACK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ml-platform-config
+                  key: GITHUB_CALLBACK_URL
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ml-platform-config
+                  key: FRONTEND_URL
