@@ -7,7 +7,7 @@ A full-stack platform for deploying and managing ML models, featuring GitHub OAu
 ## 🌐 Live Demo
 
 Live Project:
-YAML Model Platform Live Demo
+[YAML Model Platform Live Demo](https://yaml-model.vercel.app/?utm_source=chatgpt.com)
 
 > Frontend: `http://localhost:5173`
 > Backend API: `http://localhost:5000`
