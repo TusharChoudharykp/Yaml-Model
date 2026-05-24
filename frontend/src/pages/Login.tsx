@@ -1,9 +1,9 @@
 export default function Login() {
   const handleLogin = () => {
-    //window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`;
 
-    window.location.href =
-      "http://localhost:5000/auth/github";
+    // window.location.href =
+    //   "http://localhost:5000/auth/github";
   };
 
   return (
