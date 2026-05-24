@@ -7,14 +7,6 @@ import {
   Octokit,
 } from "@octokit/rest";
 
-import {
-
-  ensureRepositoryExists,
-
-  ensureDevBranchExists,
-
-} from "../services/github-service";
-
 export const deployModel = async (
   req: Request,
   res: Response
@@ -30,75 +22,74 @@ export const deployModel = async (
     const user =
       req.user as any;
 
-    const owner =
+    const requestedBy =
       user.username;
 
+    const repoOwner =
+      process.env.GITHUB_REPO_OWNER!;
+
     const repoName =
-      "ml-model-configs";
+      process.env.GITHUB_REPO_NAME!;
 
     const octokit =
       new Octokit({
+
         auth:
-          user.accessToken,
+          process.env.GITHUB_PAT,
       });
 
-    // ENSURE REPO EXISTS
-
-    await ensureRepositoryExists(
-
-      octokit,
-
-      owner,
-
-      repoName
-    );
-
-    // ENSURE DEV BRANCH EXISTS
-
-    await ensureDevBranchExists(
-
-      octokit,
-
-      owner,
-
-      repoName
-    );
-
-    // FEATURE BRANCH
-
-    const featureBranch =
+    const branchName =
       `feature/${modelName}-config`;
 
-    // GET DEV SHA
+    const filePath =
+      `configs/${modelName}.yaml`;
 
-    const devRef =
-      await octokit.git.getRef({
+    // GET DEV BRANCH SHA
 
-        owner,
+    const {
+      data: baseBranch,
+    } =
+      await octokit
+        .rest
+        .repos
+        .getBranch({
 
-        repo: repoName,
+          owner:
+            repoOwner,
 
-        ref: "heads/dev",
-      });
+          repo:
+            repoName,
 
-    const devSha =
-      devRef.data.object.sha;
+          branch:
+            "dev",
+        });
+
+    const baseSha =
+      baseBranch
+        .commit
+        .sha;
 
     // CREATE FEATURE BRANCH
 
     try {
 
-      await octokit.git.createRef({
+      await octokit
+        .rest
+        .git
+        .createRef({
 
-        owner,
+          owner:
+            repoOwner,
 
-        repo: repoName,
+          repo:
+            repoName,
 
-        ref:
-          `refs/heads/${featureBranch}`,
+          ref:
+            `refs/heads/${branchName}`,
 
-        sha: devSha,
-      });
+          sha:
+            baseSha,
+        });
 
     } catch {
 
@@ -107,30 +98,32 @@ export const deployModel = async (
       );
     }
 
-    // FILE PATH
-
-    const filePath =
-      `configs/${modelName}.yaml`;
+    // CHECK FILE EXISTS
 
     let sha:
       | string
       | undefined;
 
-    // CHECK FILE EXISTS
-
     try {
 
       const existingFile =
-        await octokit.repos.getContent({
+        await octokit
+          .rest
+          .repos
+          .getContent({
 
-          owner,
+            owner:
+              repoOwner,
 
-          repo: repoName,
+            repo:
+              repoName,
 
-          path: filePath,
+            path:
+              filePath,
 
-          ref: featureBranch,
-        });
+            ref:
+              branchName,
+          });
 
       if (
         !Array.isArray(
@@ -139,7 +132,9 @@ export const deployModel = async (
       ) {
 
         sha =
-          existingFile.data.sha;
+          existingFile
+            .data
+            .sha;
       }
 
     } catch {
@@ -151,56 +146,75 @@ export const deployModel = async (
 
     // CREATE FILE
 
-    await octokit.repos
+    await octokit
+      .rest
+      .repos
       .createOrUpdateFileContents({
 
-        owner,
+        owner:
+          repoOwner,
 
-        repo: repoName,
+        repo:
+          repoName,
 
-        path: filePath,
+        path:
+          filePath,
 
         message:
-          `Add deployment config for ${modelName}`,
+          `feat: add ${modelName} config by ${requestedBy}`,
 
         content:
-          Buffer.from(
-            yamlContent
-          ).toString("base64"),
+          Buffer
+            .from(
+              yamlContent
+            )
+            .toString(
+              "base64"
+            ),
 
         branch:
-          featureBranch,
+          branchName,
 
         sha,
       });
 
-    // CREATE PR
+    // CREATE PULL REQUEST
 
-    const pr =
-      await octokit.pulls.create({
+    const {
+      data: pr,
+    } =
+      await octokit
+        .rest
+        .pulls
+        .create({
 
-        owner,
+          owner:
+            repoOwner,
 
-        repo: repoName,
+          repo:
+            repoName,
 
-        title:
-          `Deploy ${modelName}`,
+          title:
+            `[ML Deploy] Add ${modelName} config`,
 
-        head:
-          featureBranch,
-
-        base: "dev",
-
-        body: `
-## ML Model Deployment
-
-This PR adds deployment configuration for:
+          body: `
+## ML Model Deployment Request
 
 - Model: ${modelName}
-- Environment: dev
-- Generated via ML Deployment Portal
-        `,
-      });
+
+- Requested By: @${requestedBy}
+
+- Branch: ${branchName}
+
+- Generated via YAML Platform
+          `,
+
+          head:
+            branchName,
+
+          base:
+            "dev",
+        });
 
     return res.json({
 
@@ -210,7 +224,7 @@ This PR adds deployment configuration for:
         "Pull Request created successfully",
 
       prUrl:
-        pr.data.html_url,
+        pr.html_url,
     });
 
   } catch (error) {
@@ -222,7 +236,7 @@ This PR adds deployment configuration for:
       success: false,
 
       message:
-        "Failed to create PR",
+        "Failed to create pull request",
     });
   }
 };
