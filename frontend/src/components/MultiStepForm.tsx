@@ -182,7 +182,7 @@ export default function MultiStepForm({
 
                 const response =
                     await fetch(
-                        "http://localhost:5000/deploy",
+                        `${import.meta.env.VITE_API_URL}/deploy`,
                         {
                             method: "POST",
 
