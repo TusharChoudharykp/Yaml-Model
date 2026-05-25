@@ -55,4 +55,15 @@ router.get(
   }
 );
 
+router.get("/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ success: false });
+    }
+    req.session.destroy(() => {
+      res.json({ success: true });
+    });
+  });
+});
+
 export default router;
