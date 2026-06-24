@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ml-frontend
+  name: frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ml-frontend
+      app: frontend
   template:
     metadata:
       labels:
-        app: ml-frontend
+        app: frontend
     spec:
       containers:
-        - name: ml-frontend
+        - name: frontend
           image: tusharchoudhary2002/ml-platform-frontend:latest
           ports:
             - containerPort: 5173

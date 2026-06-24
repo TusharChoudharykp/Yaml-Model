@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ml-backend
+  name: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ml-backend
+      app: backend
   template:
     metadata:
       labels:
-        app: ml-backend
+        app: backend
     spec:
       dnsConfig:
         nameservers:
           - 8.8.8.8
           - 8.8.4.4
       containers:
-        - name: ml-backend
+        - name: backend
           image: tusharchoudhary2002/ml-platform-backend:latest
           ports:
             - containerPort: 5000
