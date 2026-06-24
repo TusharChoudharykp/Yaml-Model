@@ -15,6 +15,8 @@ import deployRoute from "./routes/deploy-routes";
 
 import authRoute from "./routes/auth-routes";
 
+import k8sRoute from "./routes/k8s-routes";
+
 const app = express();
 
 app.set("trust proxy", 1);
@@ -29,14 +31,18 @@ app.use(
 
 app.use(express.json());
 
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,        // required for https
-      sameSite: "none",    // required for cross-domain
+      // secure: true,        // required for https
+      // sameSite: "none",    // required for cross-domain
+      secure: isProduction,              //false for localhost
+      sameSite: isProduction ? "none" : "lax",  //lax for localhost
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000  // 24 hours
     }
@@ -50,6 +56,8 @@ app.use(passport.session());
 app.use("/deploy", deployRoute);
 
 app.use("/auth", authRoute);
+
+app.use("/k8s", k8sRoute);
 
 app.listen(5000, () => {
 

@@ -1,9 +1,9 @@
 export default function Login() {
   const handleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`;
+    //window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`;
 
-    // window.location.href =
-    //   "http://localhost:5000/auth/github";
+    window.location.href =
+      "http://localhost:5000/auth/github";
   };
 
   return (
@@ -27,7 +27,7 @@ export default function Login() {
         {/* Dynamic Typography Hero Segment */}
         <div className="my-auto py-12 lg:py-0">
           <h1 className="text-5xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.85] mb-6 select-none">
-            ML DEPLOY <br />
+            YAML DEPLOY <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-500">
               PORTAL.
             </span>

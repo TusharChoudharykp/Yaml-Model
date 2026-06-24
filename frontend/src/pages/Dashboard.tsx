@@ -16,6 +16,8 @@ import MultiStepForm
 import { GithubUser }
   from "../types/user";
 
+import ClusterStatus from "../components/ClusterStatus";
+
 interface Props {
 
   darkMode: boolean;
@@ -201,7 +203,7 @@ export default function Dashboard({
           "
           >
 
-            ML Deployment Platform
+            YAML Deployment Platform
 
           </h1>
 
@@ -372,6 +374,7 @@ export default function Dashboard({
         <MultiStepForm
           user={user}
         />
+        <ClusterStatus />
 
       </div>
 
